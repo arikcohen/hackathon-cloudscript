@@ -34,11 +34,11 @@
     <DebugSymbols>true</DebugSymbols>
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
-    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
+    <TypeScriptModuleKind>System</TypeScriptModuleKind>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
     <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
-    <TypeScriptOutFile />
+    <TypeScriptOutFile>combined-cloudscript.js</TypeScriptOutFile>
     <TypeScriptOutDir>C:\Users\arikc\source\repos\arikcohen\hackathon-cloudscript\js</TypeScriptOutDir>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
@@ -53,6 +53,7 @@
     <TypeScriptCompile Include="projects\authentication\authentication.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\DefaultCloudScript.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\ExampleCloudScript.ts" />
+    <Content Include="combined-cloudscript.js.map" />
     <Content Include="README.md" />
     <TypeScriptCompile Include="Sample-CloudScript\OtherExamples.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\LiveOpsExample.ts" />
@@ -64,13 +65,15 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="js\" />
     <Folder Include="sample-cloudScript\" />
     <Folder Include="projects\" />
     <Folder Include="projects\authentication\" />
     <Folder Include="scripts\" />
     <Folder Include="scripts\typings\" />
     <Folder Include="scripts\typings\PlayFab\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="combined-cloudscript.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
