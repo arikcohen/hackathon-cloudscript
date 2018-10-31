@@ -30,3 +30,36 @@ interface IDailyRewardsHelloWorldResponse {
     messageValue: string;
 }
 handlers["DailyRewardsHelloWorld"] = DailyRewardsHelloWorld;
+
+
+// This function will control the game's reward heartbeat and is called by a scheduled task
+var DailyRewardsUpdateLastRewardHeartbeat = function (args: any, context: IPlayFabContext): IDailyRewardsUpdateLastRewardResponse {
+
+    var message = "Executing the DailyReward heartbeat - all players will now be able to claim their next reward ";
+    log.info(message);
+
+    var headers = {};
+    var body = {};
+    var url = "http://worldclockapi.com/api/json/utc/now";
+    var content = JSON.stringify(body);
+    var httpMethod = "get";
+    var contentType = "application/json";
+
+    // The pre-defined http object makes synchronous HTTP requests
+    var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
+    var currentDateTime = new Date(timeResponse.currentDateTime);
+    log.debug(currentDateTime.toDateString());
+    var internalData = server.GetTitleInternalData({}).Data;
+
+
+    server.SetTitleInternalData(
+        {
+            "Key": "DailyRewardLastRewardHeartbeat",
+            "Value": JSON.stringify(currentDateTime)
+        });
+    return { messageValue: message };
+}
+interface IDailyRewardsUpdateLastRewardHeartbeat {
+    messageValue: string;
+}
+handlers["DailyRewardsUpdateLastRewardHeartbeat"] = DailyRewardsUpdateLastRewardHeartbeat;
