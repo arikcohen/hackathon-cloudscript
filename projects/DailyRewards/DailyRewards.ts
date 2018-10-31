@@ -53,7 +53,7 @@ var DailyRewardUpdateLastRewardHeartbeat = function (args: any, context: IPlayFa
     server.SetTitleInternalData(
         {
             "Key": "DailyRewardLastRewardHeartbeat",
-            "Value": JSON.stringify(currentDateTime)
+            "Value": JSON.stringify(currentDateTime.getTime())
         });
     return { messageValue: message };
 }

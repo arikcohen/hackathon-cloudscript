@@ -91,7 +91,7 @@ var DailyRewardUpdateLastRewardHeartbeat = function (args, context) {
     // Update the title data value to contain current datetime
     server.SetTitleInternalData({
         "Key": "DailyRewardLastRewardHeartbeat",
-        "Value": JSON.stringify(currentDateTime)
+        "Value": JSON.stringify(currentDateTime.getTime())
     });
     return { messageValue: message };
 };
