@@ -354,6 +354,85 @@ var SaveTestData = function (args) {
     });
 };
 handlers["SaveTestData"] = SaveTestData;
+// It's important for this example to have a clear idea of what this data looks like
+// Your real data would only be in TitleData, stored as a json string in the "activeEvents" key
+var EXAMPLE_STORE_CYCLE = {
+    "daily": ["daily_monday", "daily_tuesday", "daily_wednesday", "daily_thursday", "daily_friday", "daily_saturday", "daily_sunday"],
+    "weekly": ["weekly_red", "weekly_green", "weekly_blue"],
+    "holiday": [null, "Thanksgiving"]
+};
+var DEBUG_ENABLED = true; // Allows you to call manually with ExecuteCloudScript. Set this to false in production
+// Read TitleData, getting live active events, and the static information about event cycles
+function GetTitleEventInfo() {
+    var titleRequest = { Keys: ["activeEvents", "storeCycles"] };
+    var titleResponse = server.GetTitleData(titleRequest);
+    var activeEvents = null;
+    if (titleResponse.Data.hasOwnProperty("activeEvents"))
+        activeEvents = JSON.parse(titleResponse.Data["activeEvents"]);
+    if (!activeEvents)
+        activeEvents = [];
+    var storeCycles = null;
+    if (titleResponse.Data.hasOwnProperty("storeCycles"))
+        storeCycles = JSON.parse(titleResponse.Data["storeCycles"]);
+    ;
+    if (!storeCycles)
+        storeCycles = EXAMPLE_STORE_CYCLE;
+    return {
+        activeEvents: activeEvents,
+        storeCycles: storeCycles
+    };
+}
+// Update TitleData, setting new live active events
+function SetTitleEventInfo(activeEvents) {
+    var titleRequest = { Key: "activeEvents", Value: JSON.stringify(activeEvents) };
+    server.SetTitleData(titleRequest);
+}
+function CycleEvent(cycleType, cycleTo) {
+    if (cycleTo === void 0) { cycleTo = null; }
+    var eventInfo = GetTitleEventInfo();
+    var cycleList = eventInfo.storeCycles[cycleType];
+    var prevIndex = 0;
+    for (var i = 0; i < cycleList.length; i++) {
+        for (var j = 0; j < eventInfo.activeEvents.length; j++) {
+            if (eventInfo.activeEvents[j] === cycleList[i]) {
+                eventInfo.activeEvents.splice(j, 1);
+                prevIndex = i;
+            }
+        }
+    }
+    if (!cycleTo) // Determine the next event if unspecified
+        cycleTo = cycleList[(prevIndex + 1) % cycleList.length];
+    if (cycleTo) // Set the next event if defined
+        eventInfo.activeEvents.push(cycleTo);
+    SetTitleEventInfo(eventInfo.activeEvents);
+    return eventInfo.activeEvents;
+}
+var CycleDailyEvent = function (args, context) {
+    if (!DEBUG_ENABLED && !context)
+        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
+    return CycleEvent("daily");
+};
+handlers["CycleDailyEvent"] = CycleDailyEvent;
+var CycleWeeklyEvent = function (args, context) {
+    if (!DEBUG_ENABLED && !context)
+        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
+    return CycleEvent("weekly");
+};
+handlers["CycleWeeklyEvent"] = CycleWeeklyEvent;
+var DisableHoliday = function (args, context) {
+    if (!DEBUG_ENABLED && !context)
+        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
+    return CycleEvent("holiday", null);
+};
+handlers["DisableHoliday"] = DisableHoliday;
+// Each Holiday-Enable needs its own handler since context cannot contain any parameters.
+// You could use additional title-data to determine when to activate/deactivate holidays
+var EnableThanksgiving = function (args, context) {
+    if (!DEBUG_ENABLED && !context)
+        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
+    return CycleEvent("holiday", "Thanksgiving");
+};
+handlers["EnableThanksgiving"] = EnableThanksgiving;
 var SELL_PRICE_RATIO = 0.75;
 function SellItem_internal(soldItemInstanceId, requestedVcType) {
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
@@ -483,105 +562,6 @@ function UpdateGameState(turnData, currentState) {
     // PSEUDO-CODE-STUB: Update the turn-based game state according to the rules of this game
     return JSON.stringify({});
 }
-// It's important for this example to have a clear idea of what this data looks like
-// Your real data would only be in TitleData, stored as a json string in the "activeEvents" key
-var EXAMPLE_STORE_CYCLE = {
-    "daily": ["daily_monday", "daily_tuesday", "daily_wednesday", "daily_thursday", "daily_friday", "daily_saturday", "daily_sunday"],
-    "weekly": ["weekly_red", "weekly_green", "weekly_blue"],
-    "holiday": [null, "Thanksgiving"]
-};
-var DEBUG_ENABLED = true; // Allows you to call manually with ExecuteCloudScript. Set this to false in production
-// Read TitleData, getting live active events, and the static information about event cycles
-function GetTitleEventInfo() {
-    var titleRequest = { Keys: ["activeEvents", "storeCycles"] };
-    var titleResponse = server.GetTitleData(titleRequest);
-    var activeEvents = null;
-    if (titleResponse.Data.hasOwnProperty("activeEvents"))
-        activeEvents = JSON.parse(titleResponse.Data["activeEvents"]);
-    if (!activeEvents)
-        activeEvents = [];
-    var storeCycles = null;
-    if (titleResponse.Data.hasOwnProperty("storeCycles"))
-        storeCycles = JSON.parse(titleResponse.Data["storeCycles"]);
-    ;
-    if (!storeCycles)
-        storeCycles = EXAMPLE_STORE_CYCLE;
-    return {
-        activeEvents: activeEvents,
-        storeCycles: storeCycles
-    };
-}
-// Update TitleData, setting new live active events
-function SetTitleEventInfo(activeEvents) {
-    var titleRequest = { Key: "activeEvents", Value: JSON.stringify(activeEvents) };
-    server.SetTitleData(titleRequest);
-}
-function CycleEvent(cycleType, cycleTo) {
-    if (cycleTo === void 0) { cycleTo = null; }
-    var eventInfo = GetTitleEventInfo();
-    var cycleList = eventInfo.storeCycles[cycleType];
-    var prevIndex = 0;
-    for (var i = 0; i < cycleList.length; i++) {
-        for (var j = 0; j < eventInfo.activeEvents.length; j++) {
-            if (eventInfo.activeEvents[j] === cycleList[i]) {
-                eventInfo.activeEvents.splice(j, 1);
-                prevIndex = i;
-            }
-        }
-    }
-    if (!cycleTo) // Determine the next event if unspecified
-        cycleTo = cycleList[(prevIndex + 1) % cycleList.length];
-    if (cycleTo) // Set the next event if defined
-        eventInfo.activeEvents.push(cycleTo);
-    SetTitleEventInfo(eventInfo.activeEvents);
-    return eventInfo.activeEvents;
-}
-var CycleDailyEvent = function (args, context) {
-    if (!DEBUG_ENABLED && !context)
-        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
-    return CycleEvent("daily");
-};
-handlers["CycleDailyEvent"] = CycleDailyEvent;
-var CycleWeeklyEvent = function (args, context) {
-    if (!DEBUG_ENABLED && !context)
-        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
-    return CycleEvent("weekly");
-};
-handlers["CycleWeeklyEvent"] = CycleWeeklyEvent;
-var DisableHoliday = function (args, context) {
-    if (!DEBUG_ENABLED && !context)
-        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
-    return CycleEvent("holiday", null);
-};
-handlers["DisableHoliday"] = DisableHoliday;
-// Each Holiday-Enable needs its own handler since context cannot contain any parameters.
-// You could use additional title-data to determine when to activate/deactivate holidays
-var EnableThanksgiving = function (args, context) {
-    if (!DEBUG_ENABLED && !context)
-        throw "This can only be called from PlayStream"; // Safety check to prevent Clients from changing events, and/or accidents
-    return CycleEvent("holiday", "Thanksgiving");
-};
-handlers["EnableThanksgiving"] = EnableThanksgiving;
-function GetEntityToken(params, context) {
-    var getTokenRequest = {};
-    var getTokenResponse = entity.GetEntityToken(getTokenRequest);
-    var entityId = getTokenResponse.Entity.Id;
-    var entityType = getTokenResponse.Entity.Type;
-}
-handlers.GetEntityToken = GetEntityToken;
-function GetObjects(params, context) {
-    var getObjRequest = {
-        Entity: {
-            Id: params.entityId,
-            Type: params.entityType
-        }
-    };
-    var getObjResponse = entity.GetObjects(getObjRequest);
-    var entityId = getObjResponse.Entity.Id;
-    var entityType = getObjResponse.Entity.Type;
-    var entityObjs = getObjResponse.Objects["testKey"];
-}
-handlers.GetObjects = GetObjects;
 // Special key in the Title Data that contains an array of AB buckets that participate in the testing
 var TITLE_AB_TEST_TITLE_KEY = "TitleDataAbTestSegmentIds";
 var GetTitleDataAB = function (args, ctx) {
@@ -623,4 +603,49 @@ var GetTitleDataAB = function (args, ctx) {
         return defaultValue;
 };
 handlers["GetTitleDataAB"] = GetTitleDataAB;
+function GetEntityToken(params, context) {
+    var getTokenRequest = {};
+    var getTokenResponse = entity.GetEntityToken(getTokenRequest);
+    var entityId = getTokenResponse.Entity.Id;
+    var entityType = getTokenResponse.Entity.Type;
+}
+handlers.GetEntityToken = GetEntityToken;
+function GetObjects(params, context) {
+    var getObjRequest = {
+        Entity: {
+            Id: params.entityId,
+            Type: params.entityType
+        }
+    };
+    var getObjResponse = entity.GetObjects(getObjRequest);
+    var entityId = getObjResponse.Entity.Id;
+    var entityType = getObjResponse.Entity.Type;
+    var entityObjs = getObjResponse.Objects["testKey"];
+}
+handlers.GetObjects = GetObjects;
+// This is a Cloud Script function. "args" is set to the value of the "FunctionParameter" 
+// parameter of the ExecuteCloudScript API.
+// (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
+// "context" contains additional information when the Cloud Script function is called from a PlayStream action.
+var NextTournament = function (args, context) {
+    // The pre-defined "currentPlayerId" variable is initialized to the PlayFab ID of the player logged-in on the game client. 
+    // Cloud Script handles authenticating the player automatically.
+    var message = "Hello " + currentPlayerId + "!";
+    // You can use the "log" object to write out debugging statements. It has
+    // three functions corresponding to logging level: debug, info, and error. These functions
+    // take a message string and an optional object.
+    log.info(message);
+    var inputValue = null;
+    if (args && args.inputValue)
+        inputValue = args.inputValue;
+    log.debug("Next Tournament:", { input: args.inputValue });
+    // The value you return from a Cloud Script function is passed back 
+    // to the game client in the ExecuteCloudScript API response, along with any log statements
+    // and additional diagnostic information, such as any errors returned by API calls or external HTTP
+    // requests. They are also included in the optional player_executed_cloudscript PlayStream event 
+    // generated by the function execution.
+    // (https://api.playfab.com/playstream/docs/PlayStreamEventModels/player/player_executed_cloudscript)
+    return { messageValue: message };
+};
+handlers["NextTournament"] = NextTournament;
 //# sourceMappingURL=combined-cloudscript.js.map
