@@ -1,5 +1,8 @@
 ﻿
-// This is a Cloud Script function. "args" is set to the value of the "FunctionParameter" 
+//import { PlayFabServerModels } from "scripts/typings/PlayFab/CloudScript";
+
+
+// This is a Cloud Script function. "args" is set to the value of the "FunctionParameter"
 // parameter of the ExecuteCloudScript API.
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
 // "context" contains additional information when the Cloud Script function is called from a PlayStream action.
@@ -65,6 +68,7 @@ handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHe
 // This function checks to see how much longer a player must wait to claim theiir next reward
 var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFabContext): IDailyRewardsCheckRewardAvailability {
 
+    var timeRemaining = 0;
     var message = "Checking whether " + currentPlayerId + " can claim a reward";
     log.info(message);
 
@@ -75,22 +79,37 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     var httpMethod = "get";
     var contentType = "application/json";
 
-    // The pre-defined http object makes synchronous HTTP requests
+    // Get the current time - the pre-defined http object makes synchronous HTTP requests
     var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
     var currentDateTime = new Date(timeResponse.currentDateTime);
     log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
 
+    // Get the last reward heartbeat value
     var internalData = server.GetTitleInternalData({}).Data;
     var lastRewardHeartbeat = internalData.DailyRewardLastRewardHeartbeat;
-    if (currentDateTime.toTimeString() > lastRewardHeartbeat)
-        log.debug("Player time was greater than title time" + currentDateTime.getTime() + ">" + lastRewardHeartbeat);
+    var rewardCycleLengthInMS = parseInt(internalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
+
+    // Get the player's last reward claim time
+    var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed"] });
+    var lastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
+
+    // Verify the player is eligible for a new daily reward
+    if (lastRewardClaimed > lastRewardHeartbeat) {
+        timeRemaining = (parseInt(lastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime(); 
+        message = "The player " + currentPlayerId + " was not YET eligible for a new reward. Wait for the next title reward heartbeat"
+        log.info(message);
+        return { messageValue: message, timeRemainingUntilReward: timeRemaining};
+    }
+
+     if (currentDateTime.toTimeString() > lastRewardHeartbeat)
+        log.debug("Player time was greater than title time" + currentDateTime.getTime() + " > " + lastRewardHeartbeat);
     else
-        log.debug("Player time was less than title time" + currentDateTime.getTime() + "<" + lastRewardHeartbeat);
+        log.debug("Player time was less than title time" + currentDateTime.getTime() + " < " + lastRewardHeartbeat);
 
     message = "Player time " + currentDateTime.getTime() + " vs lastTitleHeartbeat " + lastRewardHeartbeat;
-    return { messageValue: message };
+    return { messageValue: message, timeRemainingUntilReward: timeRemaining };
 }
 interface IDailyRewardsCheckRewardAvailability {
-    messageValue: string;
+    messageValue: string, timeRemainingUntilReward: number;
 }
-handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
+handlers["DailyRewardsCheckReardAvailability"] = DailyRewardsCheckRewardAvailability;
