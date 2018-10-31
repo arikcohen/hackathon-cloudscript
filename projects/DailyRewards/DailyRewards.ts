@@ -33,7 +33,7 @@ handlers["DailyRewardsHelloWorld"] = DailyRewardsHelloWorld;
 
 
 // This function will control the game's reward heartbeat and is called by a scheduled task
-var DailyRewardsUpdateLastRewardHeartbeat = function (args: any, context: IPlayFabContext): IDailyRewardsUpdateLastRewardResponse {
+var DailyRewardUpdateLastRewardHeartbeat = function (args: any, context: IPlayFabContext): IDailyRewardUpdateLastRewardHeartbeat {
 
     var message = "Executing the DailyReward heartbeat - all players will now be able to claim their next reward ";
     log.info(message);
@@ -49,9 +49,7 @@ var DailyRewardsUpdateLastRewardHeartbeat = function (args: any, context: IPlayF
     var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
     var currentDateTime = new Date(timeResponse.currentDateTime);
     log.debug(currentDateTime.toDateString());
-    var internalData = server.GetTitleInternalData({}).Data;
-
-
+    // Update the title data value to contain current datetime
     server.SetTitleInternalData(
         {
             "Key": "DailyRewardLastRewardHeartbeat",
@@ -59,7 +57,36 @@ var DailyRewardsUpdateLastRewardHeartbeat = function (args: any, context: IPlayF
         });
     return { messageValue: message };
 }
-interface IDailyRewardsUpdateLastRewardHeartbeat {
+interface IDailyRewardUpdateLastRewardHeartbeat {
     messageValue: string;
 }
-handlers["DailyRewardsUpdateLastRewardHeartbeat"] = DailyRewardsUpdateLastRewardHeartbeat;
+handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHeartbeat;
+
+// This function checks to see how much longer a player must wait to claim theiir next reward
+var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFabContext): IDailyRewardsCheckRewardAvailability {
+
+    var message = "Checking whether " + currentPlayerId + "can claim a reward";
+    log.info(message);
+
+    var headers = {};
+    var body = {};
+    var url = "http://worldclockapi.com/api/json/utc/now";
+    var content = JSON.stringify(body);
+    var httpMethod = "get";
+    var contentType = "application/json";
+
+    // The pre-defined http object makes synchronous HTTP requests
+    var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
+    var currentDateTime = new Date(timeResponse.currentDateTime);
+    log.debug("Player " + currentPlayerId + " is checking at time " + currentDateTime.toDateString());
+
+    var internalData = server.GetTitleInternalData({}).Data;
+    var lastRewardHeartbeat = new Date(internalData.DailyRewardLastRewardHeartbeat);
+    if (currentDateTime.getUTCSeconds() > lastRewardHeartbeat.getUTCSeconds())
+        log.debug("Player time was greater than title time" + currentDateTime.getUTCSeconds() + ">" + lastRewardHeartbeat.getUTCSeconds());
+    return { messageValue: message };
+}
+interface IDailyRewardsCheckRewardAvailability {
+    messageValue: string;
+}
+handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;

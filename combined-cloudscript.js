@@ -75,7 +75,7 @@ var DailyRewardsHelloWorld = function (args, context) {
 };
 handlers["DailyRewardsHelloWorld"] = DailyRewardsHelloWorld;
 // This function will control the game's reward heartbeat and is called by a scheduled task
-var DailyRewardsUpdateLastRewardHeartbeat = function (args, context) {
+var DailyRewardUpdateLastRewardHeartbeat = function (args, context) {
     var message = "Executing the DailyReward heartbeat - all players will now be able to claim their next reward ";
     log.info(message);
     var headers = {};
@@ -88,14 +88,35 @@ var DailyRewardsUpdateLastRewardHeartbeat = function (args, context) {
     var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
     var currentDateTime = new Date(timeResponse.currentDateTime);
     log.debug(currentDateTime.toDateString());
-    var internalData = server.GetTitleInternalData({}).Data;
+    // Update the title data value to contain current datetime
     server.SetTitleInternalData({
         "Key": "DailyRewardLastRewardHeartbeat",
         "Value": JSON.stringify(currentDateTime)
     });
     return { messageValue: message };
 };
-handlers["DailyRewardsUpdateLastRewardHeartbeat"] = DailyRewardsUpdateLastRewardHeartbeat;
+handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHeartbeat;
+// This function checks to see how much longer a player must wait to claim theiir next reward
+var DailyRewardsCheckRewardAvailability = function (args, context) {
+    var message = "Checking whether " + currentPlayerId + "can claim a reward";
+    log.info(message);
+    var headers = {};
+    var body = {};
+    var url = "http://worldclockapi.com/api/json/utc/now";
+    var content = JSON.stringify(body);
+    var httpMethod = "get";
+    var contentType = "application/json";
+    // The pre-defined http object makes synchronous HTTP requests
+    var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
+    var currentDateTime = new Date(timeResponse.currentDateTime);
+    log.debug("Player " + currentPlayerId + " is checking at time " + currentDateTime.toDateString());
+    var internalData = server.GetTitleInternalData({}).Data;
+    var lastRewardHeartbeat = new Date(internalData.DailyRewardLastRewardHeartbeat);
+    if (currentDateTime.getUTCSeconds() > lastRewardHeartbeat.getUTCSeconds())
+        log.debug("Player time was greater than title time" + currentDateTime.getUTCSeconds() + ">" + lastRewardHeartbeat.getUTCSeconds());
+    return { messageValue: message };
+};
+handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 // This is a Cloud Script function. "args" is set to the value of the "FunctionParameter" 
 // parameter of the ExecuteCloudScript API.
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
