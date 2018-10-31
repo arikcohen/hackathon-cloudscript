@@ -7,8 +7,8 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>CloudScriptExample</Name>
     <RootNamespace>CloudScriptExample</RootNamespace>
-    <ToolsVersionPromptShown>0.0</ToolsVersionPromptShown>
-    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
+    <ToolsVersionPromptShown>2.8</ToolsVersionPromptShown>
+    <TypeScriptToolsVersion>3.0</TypeScriptToolsVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -51,6 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="projects\authentication\authentication.ts" />
+    <TypeScriptCompile Include="projects\SpendingEvent\spendingevent.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\DefaultCloudScript.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\ExampleCloudScript.ts" />
     <Content Include="combined-cloudscript.js.map" />
@@ -65,6 +66,7 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="projects\SpendingEvent\" />
     <Folder Include="sample-cloudScript\" />
     <Folder Include="projects\" />
     <Folder Include="projects\authentication\" />
