@@ -51,6 +51,9 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="projects\authentication\authentication.ts" />
+    <TypeScriptCompile Include="projects\authentication\trading.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="projects\SpendingEvent\spendingevent.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\DefaultCloudScript.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\ExampleCloudScript.ts" />
