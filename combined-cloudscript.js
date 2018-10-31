@@ -133,7 +133,7 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
     message = "Player time " + currentDateTime.getTime() + " vs lastTitleHeartbeat " + lastRewardHeartbeat;
     return { messageValue: message, timeRemainingUntilReward: timeRemaining };
 };
-handlers["DailyRewardsCheckReardAvailability"] = DailyRewardsCheckRewardAvailability;
+handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 // This is a Cloud Script function. "args" is set to the value of the "FunctionParameter" 
 // parameter of the ExecuteCloudScript API.
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)

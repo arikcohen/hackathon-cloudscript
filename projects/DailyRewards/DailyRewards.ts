@@ -113,4 +113,4 @@ interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
     timeRemainingUntilReward: number;
 }
-handlers["DailyRewardsCheckReardAvailability"] = DailyRewardsCheckRewardAvailability;
+handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
