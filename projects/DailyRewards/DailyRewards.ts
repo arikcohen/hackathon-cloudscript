@@ -65,7 +65,7 @@ handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHe
 // This function checks to see how much longer a player must wait to claim theiir next reward
 var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFabContext): IDailyRewardsCheckRewardAvailability {
 
-    var message = "Checking whether " + currentPlayerId + "can claim a reward";
+    var message = "Checking whether " + currentPlayerId + " can claim a reward";
     log.info(message);
 
     var headers = {};
@@ -78,12 +78,16 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     // The pre-defined http object makes synchronous HTTP requests
     var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
     var currentDateTime = new Date(timeResponse.currentDateTime);
-    log.debug("Player " + currentPlayerId + " is checking at time " + currentDateTime.toDateString());
+    log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
 
     var internalData = server.GetTitleInternalData({}).Data;
     var lastRewardHeartbeat = new Date(internalData.DailyRewardLastRewardHeartbeat);
     if (currentDateTime.getUTCSeconds() > lastRewardHeartbeat.getUTCSeconds())
         log.debug("Player time was greater than title time" + currentDateTime.getUTCSeconds() + ">" + lastRewardHeartbeat.getUTCSeconds());
+    else
+        log.debug("Player time was less than title time" + currentDateTime.getUTCSeconds() + "<" + lastRewardHeartbeat.getUTCSeconds());
+
+
     return { messageValue: message };
 }
 interface IDailyRewardsCheckRewardAvailability {
