@@ -83,11 +83,11 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     var internalData = server.GetTitleInternalData({}).Data;
     var lastRewardHeartbeat = new Date(internalData.DailyRewardLastRewardHeartbeat);
     if (currentDateTime.getUTCSeconds() > lastRewardHeartbeat.getUTCSeconds())
-        log.debug("Player time was greater than title time" + currentDateTime.getUTCSeconds() + ">" + lastRewardHeartbeat.getUTCSeconds());
+        log.debug("Player time was greater than title time" + currentDateTime.getTime() + ">" + lastRewardHeartbeat.getTime());
     else
         log.debug("Player time was less than title time" + currentDateTime.getUTCSeconds() + "<" + lastRewardHeartbeat.getUTCSeconds());
 
-
+    message = "Player time " + currentDateTime.getTime() + " vs lastTitleHeartbeat " + lastRewardHeartbeat.getTime();
     return { messageValue: message };
 }
 interface IDailyRewardsCheckRewardAvailability {
