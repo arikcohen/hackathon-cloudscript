@@ -110,6 +110,7 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     return { messageValue: message, timeRemainingUntilReward: timeRemaining };
 }
 interface IDailyRewardsCheckRewardAvailability {
-    messageValue: string, timeRemainingUntilReward: number;
+    messageValue: string;
+    timeRemainingUntilReward: number;
 }
 handlers["DailyRewardsCheckReardAvailability"] = DailyRewardsCheckRewardAvailability;
