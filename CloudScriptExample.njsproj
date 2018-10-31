@@ -54,7 +54,9 @@
     <TypeScriptCompile Include="projects\authentication\trading.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="projects\DailyRewards\DailyRewards.ts" />
     <TypeScriptCompile Include="projects\SpendingEvent\spendingevent.ts" />
+    <TypeScriptCompile Include="projects\tournament\tournament.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\DefaultCloudScript.ts" />
     <TypeScriptCompile Include="Sample-CloudScript\ExampleCloudScript.ts" />
     <Content Include="combined-cloudscript.js.map" />
@@ -69,7 +71,9 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="projects\DailyRewards\" />
     <Folder Include="projects\SpendingEvent\" />
+    <Folder Include="projects\tournament\" />
     <Folder Include="sample-cloudScript\" />
     <Folder Include="projects\" />
     <Folder Include="projects\authentication\" />
