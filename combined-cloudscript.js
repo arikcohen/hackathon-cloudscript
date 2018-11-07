@@ -132,7 +132,7 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate.toString() };
+    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate };
 };
 handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 // This function attempts to redeem a the next daily reward for a player
