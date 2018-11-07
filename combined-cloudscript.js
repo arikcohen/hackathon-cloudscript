@@ -204,6 +204,10 @@ handlers["SpendingEventHelloWorld"] = SpendingEventHelloWorld;
 // "context" contains additional information when the Cloud Script function is called from a PlayStream action.
 var ProcessTournamentFish = function (args, context) {
     log.debug("Arguments:", { args: args, context: context });
+    // if tournament is going on
+    // figure out the delta
+    var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
+    log.debug("Log This", { FishCaught: countTournamentFishCaught });
 };
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
