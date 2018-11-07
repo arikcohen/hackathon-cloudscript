@@ -7,14 +7,16 @@
 
 var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
    
-    log.debug("Arguments:", { args: args, context: context }); 
+   //log.debug("Arguments:", { args: args, context: context }); 
 
     // if tournament is going on
 
     // figure out the delta
+    log.debug("StatisticValue", context.playStreamEvent["StatisticValue"]);
+
     var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
 
-    log.debug("Log This", { FishCaught: countTournamentFishCaught });  
+    log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });  
   
 }
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
