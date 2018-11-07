@@ -88,11 +88,13 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     var internalData = server.GetTitleInternalData({}).Data;
     var titleLastRewardHeartbeat = internalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(internalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
+    var nextHeartbeat = parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS;
+    var nextHeartbeatDate = new Date(nextHeartbeat);
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
-    timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
+    timeRemaining = nextHeartbeat - currentDateTime.getTime();
 
     // Verify the player is eligible for a new daily reward
     if (playerLastRewardClaimed > titleLastRewardHeartbeat) {
@@ -105,11 +107,10 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, timeRemainingUntilReward: timeRemaining };
-}
+    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate.toString()}
 interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
-    timeRemainingUntilReward: number;
+    nextRewardHeartbeat: number;
 }
 handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 
