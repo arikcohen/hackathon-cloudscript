@@ -52,6 +52,9 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="projects\authentication\authentication.ts" />
+    <TypeScriptCompile Include="projects\authentication\crafting.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="projects\DailyRewards\DailyRewards.ts" />
     <TypeScriptCompile Include="projects\SpendingEvent\spendingevent.ts" />
     <TypeScriptCompile Include="projects\tournament\tournament.ts" />
@@ -81,7 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="combined-cloudscript.js" />
-    <Compile Include="projects\authentication\Crafting.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
