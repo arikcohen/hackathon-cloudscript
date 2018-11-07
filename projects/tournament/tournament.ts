@@ -6,9 +6,8 @@
 
 
 var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
-
-    
-    log.debug("Arguments:", { args: args, context: context });
+   
+    log.debug("Arguments:", { args: args, context: context }); 
   
 }
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
