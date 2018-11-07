@@ -101,13 +101,13 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat";
         log.info(message);
     }
-    else
-    {
+    else {
         timeRemaining = 0;
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate.toString()}
+    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate.toString() }
+}
 interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
     nextRewardHeartbeat: number;
