@@ -55,7 +55,7 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     var nextHeartbeatDate = new Date(nextHeartbeat);
 
     // Get the player's last reward claim time
-    var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed"] });
+    var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     timeRemaining = nextHeartbeat - currentDateTime.getTime();
