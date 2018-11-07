@@ -71,7 +71,6 @@
     <Folder Include="projects\DailyRewards\" />
     <Folder Include="projects\SpendingEvent\" />
     <Folder Include="projects\tournament\" />
-    <Folder Include="projects\Trading\" />
     <Folder Include="sample-cloudScript\" />
     <Folder Include="projects\" />
     <Folder Include="projects\authentication\" />
@@ -81,7 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="combined-cloudscript.js" />
-    <Compile Include="projects\Trading\Trading.js" />
+    <Compile Include="projects\authentication\Crafting.js" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
