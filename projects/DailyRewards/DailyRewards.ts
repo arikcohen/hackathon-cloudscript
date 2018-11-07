@@ -71,12 +71,11 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, playerStreak: playerRewardStreak, nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate }
+    return { messageValue: message, playerStreak: playerRewardStreak.toString(), nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate }
 }
 interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
     playerStreak: string;
-    lastReward: string;
     nextRewardHeartbeat: Date;
     lastClaimedDate: Date;
 }
@@ -139,6 +138,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
         playerRewardStreak++;
     }
 
+    // DAY [0, 1]
+    //
     // Next check to see if the player is wrapping from 6 back to 4
     // rewardDay == 0 grants the day 1 bundle
     // rewardDay == 5 grants the day 6 bundle
