@@ -127,7 +127,7 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
     }
     else {
         timeRemaining = 0;
-        message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward. Wait for the next title reward heartbeat";
+        message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
     return { messageValue: message, timeRemainingUntilReward: timeRemaining };
@@ -199,7 +199,8 @@ var DailyRewardsTryClaimReward = function (args, context) {
         CatalogVersion: "PMHackathonCatalog",
         ItemIds: [itemToGrant]
     };
-    log.info("Granting " + itemToGrant + " to player " + currentPlayerId);
+    message = ("Granting reward[" + rewardDay + "] = " + itemToGrant + " to player " + currentPlayerId);
+    log.info(message);
     server.GrantItemsToUser(grantItemsRequest);
     // TODO: check if this was successful
     // update player's info if grant was successful
