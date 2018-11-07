@@ -229,11 +229,12 @@ handlers["SpendingEventHelloWorld"] = SpendingEventHelloWorld;
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
 // "context" contains additional information when the Cloud Script function is called from a PlayStream action.
 var ProcessTournamentFish = function (args, context) {
-    log.debug("Arguments:", { args: args, context: context });
+    //log.debug("Arguments:", { args: args, context: context }); 
     // if tournament is going on
     // figure out the delta
+    log.debug("StatisticValue", context.playStreamEvent["StatisticValue"]);
     var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
-    log.debug("Log This", { FishCaught: countTournamentFishCaught });
+    log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });
 };
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
