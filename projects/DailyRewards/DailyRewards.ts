@@ -57,6 +57,7 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
+    var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     timeRemaining = nextHeartbeat - currentDateTime.getTime();
     var playerLastRewardClaimedDate = new Date(parseInt(playerLastRewardClaimed));
 
@@ -70,10 +71,12 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate }
+    return { messageValue: message, playerStreak: playerRewardStreak, nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate }
 }
 interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
+    playerStreak: string;
+    lastReward: string;
     nextRewardHeartbeat: Date;
     lastClaimedDate: Date;
 }
@@ -141,10 +144,14 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     // rewardDay == 5 grants the day 6 bundle
     // rewardDay == 6 is adjusted back to 3 which grants the day 4 bundle
     //
-    var rewardDay = playerRewardStreak % 6;
-    if (rewardDay >= 6) {
-        rewardDay = 3;
+    var rewardDay = playerRewardStreak;
+    if (rewardDay > 5)
+    {
+        rewardDay = rewardDay - 5;
+        rewardDay = rewardDay % 3;
+        rewardDay = rewardDay + 3;
     }
+    log.info("The Player has earned reward for day " + rewardDay);
 
     // Determine which reward the user should get and grant it
     var DAILY_REWARD_CYCLE = [
