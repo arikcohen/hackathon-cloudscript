@@ -90,9 +90,9 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
 
     var rewardResult = {
         playerRewardStreak: "error",
-        playerLastRewardDate: "",
+        playerLastRewardDate: "error",
         playerLastReward: "error",
-        titleNextRewardDate: ""
+        titleNextRewardDate: "error"
     };
     var message = "Player " + currentPlayerId + " is trying to claim a reward";
     log.info(message);
@@ -105,17 +105,15 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var contentType = "application/json";
 
     // Get the current time - the pre-defined http object makes synchronous HTTP requests
-    //var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
-    //var currentDateTime = new Date(timeResponse.currentDateTime);
-    var currentDateTime = new Date(JSON.parse(http.request(url, httpMethod, content, contentType, headers)).currentDateTime);
+     var currentDateTime = new Date(JSON.parse(http.request(url, httpMethod, content, contentType, headers)).currentDateTime);
     //log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
 
     // Get the title's last reward heartbeat time
     var titleInternalData = server.GetTitleInternalData({}).Data;
     var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
-    //rewardResult.titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
-    rewardResult.titleNextRewardDate = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS).toString();
+    var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
+    rewardResult.titleNextRewardDate = titleNextRewardDate.toString();
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
