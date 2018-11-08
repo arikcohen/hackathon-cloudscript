@@ -91,12 +91,11 @@ var DailyRewardsTryClaimReward = function (args, context) {
     var DAILY_REWARD_CYCLE = [
         "DailyReward_Day1", "DailyReward_Day2", "DailyReward_Day3", "DailyReward_Day4", "DailyReward_Day5", "DailyRewardTable"
     ];
-    var placeholder = Date();
     var rewardResult = {
         playerRewardStreak: "error",
-        playerLastRewardDate: new Date(),
+        playerLastRewardDate: "",
         playerLastReward: "error",
-        titleNextRewardDate: new Date()
+        titleNextRewardDate: ""
     };
     var message = "Player " + currentPlayerId + " is trying to claim a reward";
     log.info(message);
@@ -116,21 +115,21 @@ var DailyRewardsTryClaimReward = function (args, context) {
     var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     //rewardResult.titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
-    rewardResult.titleNextRewardDate.setUTCDate(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
+    rewardResult.titleNextRewardDate = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS).toString();
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
-    var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
+    var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
     //rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
-    rewardResult.playerLastRewardDate.setUTCDate(parseInt(playerLastRewardClaimed));
+    rewardResult.playerLastRewardDate = playerLastRewardDate;
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     // Verify the player is eligible for a new daily reward
-    if (playerLastRewardClaimed > titleLastRewardHeartbeat) {
+    if (playerLastRewardDate > titleLastRewardHeartbeat) {
         //timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat";
         log.info(message);
@@ -145,7 +144,7 @@ var DailyRewardsTryClaimReward = function (args, context) {
         };
     }
     // Check to see if the player has broken their streak, else increment
-    if (currentDateTime.getTime() - parseInt(playerLastRewardClaimed) > rewardCycleLengthInMS) {
+    if (currentDateTime.getTime() - parseInt(playerLastRewardDate) > rewardCycleLengthInMS) {
         playerRewardStreak = 0;
         log.info("The player " + currentPlayerId + " broke their streak. Resetting to 0");
     }
@@ -183,7 +182,7 @@ var DailyRewardsTryClaimReward = function (args, context) {
             "DailyRewardStreak": JSON.stringify(playerRewardStreak)
         }
     });
-    rewardResult.playerLastRewardDate.setUTCDate(currentDateTime.getTime());
+    rewardResult.playerLastRewardDate = currentDateTime.toString();
     log.info("Just assigned currentDateTime to playerLastRewardDate " + currentDateTime + "     :     " + rewardResult.playerLastRewardDate);
     return {
         messageValue: message,
