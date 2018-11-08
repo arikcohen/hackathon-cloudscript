@@ -122,7 +122,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
     //rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
-    rewardResult.playerLastRewardDate = playerLastRewardDate.toTimeString();
+    rewardResult.playerLastRewardDate = playerLastRewardDate.toDateString();
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
@@ -198,7 +198,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
         messageValue: message,
         playerRewardInfo: {
             playerRewardStreak: rewardResult.playerRewardStreak,
-            playerLastRewardDate: currentDateTime.toTimeString(),
+            playerLastRewardDate: currentDateTime.toDateString(),
             playerLastReward: rewardResult.playerLastReward,
             titleNextRewardDate: rewardResult.titleNextRewardDate
             }
