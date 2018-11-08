@@ -47,7 +47,6 @@ var DailyRewardUpdateLastRewardHeartbeat = function (args, context) {
 handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHeartbeat;
 // This function checks to see how much longer a player must wait to claim theiir next reward
 var DailyRewardsCheckRewardAvailability = function (args, context) {
-    var timeRemaining = 0;
     var message = "Checking whether " + currentPlayerId + " can claim a reward";
     log.info(message);
     var headers = {};
@@ -70,7 +69,6 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
-    timeRemaining = nextHeartbeat - currentDateTime.getTime();
     var playerLastRewardClaimedDate = new Date(parseInt(playerLastRewardClaimed));
     // Verify the player is eligible for a new daily reward
     if (playerLastRewardClaimed > titleLastRewardHeartbeat) {
@@ -78,7 +76,6 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
         log.info(message);
     }
     else {
-        timeRemaining = 0;
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
@@ -115,7 +112,6 @@ var DailyRewardsTryClaimReward = function (args, context) {
     rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
-    //var playerLastRewardDate = new Date(parseInt(userData.Data["DailyRewardClaimed"].Value));
     var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
@@ -139,7 +135,7 @@ var DailyRewardsTryClaimReward = function (args, context) {
         };
     }
     // Check to see if the player has broken their streak, else increment
-    if (currentDateTime.getTime() - playerLastRewardDate.getTime() > rewardCycleLengthInMS) {
+    if (currentDateTime.getTime() - parseInt(playerLastRewardDate) > rewardCycleLengthInMS) {
         playerRewardStreak = 0;
         log.info("The player " + currentPlayerId + " broke their streak. Resetting to 0");
     }
