@@ -116,17 +116,18 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
-    var playerLastRewardDate = new Date(parseInt(userData.Data["DailyRewardClaimed"].Value));
+    //var playerLastRewardDate = new Date(parseInt(userData.Data["DailyRewardClaimed"].Value));
+    var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
-    rewardResult.playerLastRewardDate = playerLastRewardDate.toDateString();
+    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toDateString();
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     
     // Verify the player is eligible for a new daily reward
-    if (playerLastRewardDate.toString() > titleLastRewardHeartbeat)
+    if (playerLastRewardDate > titleLastRewardHeartbeat)
     {
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat"
         log.info(message);
