@@ -71,13 +71,10 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message, playerStreak: playerRewardStreak.toString(), nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate }
+    return { messageValue: message }
 }
 interface IDailyRewardsCheckRewardAvailability {
     messageValue: string;
-    playerStreak: string;
-    nextRewardHeartbeat: Date;
-    lastClaimedDate: Date;
 }
 handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 
