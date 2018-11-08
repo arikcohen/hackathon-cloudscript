@@ -10,13 +10,16 @@ var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
    //log.debug("Arguments:", { args: args, context: context }); 
 
     // if tournament is going on
+    var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"]}); 
 
-    // figure out the delta
-    log.debug("StatisticValue", context.playStreamEvent["StatisticValue"]);
 
-    var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
+   
+    var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"]; 
 
-    log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });  
+    server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });
+
+    log.debug("Tournament Data", tournamentDataJSON);
+        log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });  
     
 }
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
