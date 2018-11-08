@@ -106,31 +106,31 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
 
     // Get the current time - the pre-defined http object makes synchronous HTTP requests
      var currentDateTime = new Date(JSON.parse(http.request(url, httpMethod, content, contentType, headers)).currentDateTime);
-    //log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
-
+    
     // Get the title's last reward heartbeat time
     var titleInternalData = server.GetTitleInternalData({}).Data;
     var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
-    rewardResult.titleNextRewardDate = titleNextRewardDate.toString();
+    rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
-    var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
+    //var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
+    var playerLastRewardDate = new Date(parseInt(userData.Data["DailyRewardClaimed"].Value));
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
     //rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
-    rewardResult.playerLastRewardDate = playerLastRewardDate;
+    rewardResult.playerLastRewardDate = playerLastRewardDate.toTimeString();
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     
     // Verify the player is eligible for a new daily reward
-    if (playerLastRewardDate > titleLastRewardHeartbeat) {
-        //timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
+    if (playerLastRewardDate.toString() > titleLastRewardHeartbeat)
+    {
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat"
         log.info(message);
         return {
@@ -145,7 +145,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     }
 
     // Check to see if the player has broken their streak, else increment
-    if (currentDateTime.getTime() - parseInt(playerLastRewardDate) > rewardCycleLengthInMS)
+    //if (currentDateTime.getTime() - parseInt(playerLastRewardDate) > rewardCycleLengthInMS)
+    if (currentDateTime.getTime() - playerLastRewardDate.getTime() > rewardCycleLengthInMS)
     {
         playerRewardStreak = 0;
         log.info("The player " + currentPlayerId + " broke their streak. Resetting to 0");
@@ -191,13 +192,13 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
             "DailyRewardStreak": JSON.stringify(playerRewardStreak)
         }
     });
-    rewardResult.playerLastRewardDate = currentDateTime.toString();
-    log.info("Just assigned currentDateTime to playerLastRewardDate " + currentDateTime + "     :     " + rewardResult.playerLastRewardDate)
+    //rewardResult.playerLastRewardDate = currentDateTime.toString();
+    //log.info("Just assigned currentDateTime to playerLastRewardDate " + currentDateTime + "     :     " + rewardResult.playerLastRewardDate)
     return {
         messageValue: message,
         playerRewardInfo: {
             playerRewardStreak: rewardResult.playerRewardStreak,
-            playerLastRewardDate: rewardResult.playerLastRewardDate,
+            playerLastRewardDate: currentDateTime.toTimeString(),
             playerLastReward: rewardResult.playerLastReward,
             titleNextRewardDate: rewardResult.titleNextRewardDate
             }
