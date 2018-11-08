@@ -87,6 +87,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var DAILY_REWARD_CYCLE = [
         "DailyReward_Day1", "DailyReward_Day2", "DailyReward_Day3", "DailyReward_Day4", "DailyReward_Day5", "DailyRewardTable"
     ];
+    var placeholder = Date();
     var rewardResult = {
         playerRewardStreak: "error",
         playerLastRewardDate: new Date(),
@@ -113,7 +114,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var titleInternalData = server.GetTitleInternalData({}).Data;
     var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
-    rewardResult.titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
+    //rewardResult.titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
+    rewardResult.titleNextRewardDate.setUTCDate(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
@@ -121,7 +123,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
-    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
+    //rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
+    rewardResult.playerLastRewardDate.setUTCDate(parseInt(playerLastRewardClaimed));
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
@@ -190,8 +193,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
             "DailyRewardStreak": JSON.stringify(playerRewardStreak)
         }
     });
-    rewardResult.playerLastRewardDate = currentDateTime;
-
+    rewardResult.playerLastRewardDate.setUTCDate(currentDateTime.getTime());
+    log.info("Just assigned currentDateTime to playerLastRewardDate " + currentDateTime + "     :     " + rewardResult.playerLastRewardDate)
     return {
         messageValue: message,
         playerRewardInfo: {
