@@ -84,8 +84,15 @@ handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailab
 // This function attempts to redeem a the next daily reward for a player
 // Triggered by a button press by the player
 var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext): IDailyRewardsTryClaimReward {
-
-    var timeRemaining = 0;
+    var DAILY_REWARD_CYCLE = [
+        "DailyReward_Day1", "DailyReward_Day2", "DailyReward_Day3", "DailyReward_Day4", "DailyReward_Day5", "DailyRewardTable"
+    ];
+    var rewardResult = {
+        playerRewardStreak: "error",
+        playerLastRewardDate: new Date(),
+        playerLastReward: "error",
+        titleNextRewardDate: new Date()
+    };
     var message = "Player " + currentPlayerId + " is trying to claim a reward";
     log.info(message);
 
@@ -97,32 +104,41 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var contentType = "application/json";
 
     // Get the current time - the pre-defined http object makes synchronous HTTP requests
-    var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
-    var currentDateTime = new Date(timeResponse.currentDateTime);
-    log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
+    //var timeResponse = JSON.parse(http.request(url, httpMethod, content, contentType, headers));
+    //var currentDateTime = new Date(timeResponse.currentDateTime);
+    var currentDateTime = new Date(JSON.parse(http.request(url, httpMethod, content, contentType, headers)).currentDateTime);
+    //log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
 
     // Get the title's last reward heartbeat time
-    var internalData = server.GetTitleInternalData({}).Data;
-    var titleLastRewardHeartbeat = internalData.DailyRewardLastRewardHeartbeat;
-    var rewardCycleLengthInMS = parseInt(internalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
+    var titleInternalData = server.GetTitleInternalData({}).Data;
+    var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
+    var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
+    rewardResult.titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
-
+    //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
+    rewardResult.playerRewardStreak = playerRewardStreak.toString();
+    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
+    if (playerRewardStreak > 5)
+        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
+    else
+        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
+    
     // Verify the player is eligible for a new daily reward
     if (playerLastRewardClaimed > titleLastRewardHeartbeat) {
-        timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
+        //timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat"
         log.info(message);
         return {
             messageValue: message,
-            playersRewardInfo: {
-                timeRemaining: timeRemaining,
-                playerRewardStreak: playerRewardStreak,
-                rewardDay: 0,
-                itemToGrant: "none"
+            playerRewardInfo: {
+                playerRewardStreak: rewardResult.playerRewardStreak,
+                playerLastRewardDate: rewardResult.playerLastRewardDate,
+                playerLastReward: rewardResult.playerLastReward,
+                titleNextRewardDate: rewardResult.titleNextRewardDate
             }
         };
     }
@@ -137,8 +153,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     {
         playerRewardStreak++;
     }
+    rewardResult.playerRewardStreak = playerRewardStreak.toString();
 
-    // DAY [0, 1]
     //
     // Next check to see if the player is wrapping from 6 back to 4
     // rewardDay == 0 grants the day 1 bundle
@@ -152,25 +168,21 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
         rewardDay = rewardDay % 3;
         rewardDay = rewardDay + 3;
     }
-    log.info("The Player has earned reward for day " + rewardDay);
-
-    // Determine which reward the user should get and grant it
-    var DAILY_REWARD_CYCLE = [
-        "DailyReward_Day1", "DailyReward_Day2", "DailyReward_Day3", "DailyReward_Day4", "DailyReward_Day5", "DailyRewardTable"
-    ];
     var itemToGrant = DAILY_REWARD_CYCLE[rewardDay];
+    //log.info("The Player has earned reward for day " + rewardDay + " with a streak of " + playerRewardStreak);
+
 
     var grantItemsRequest = {
         PlayFabId: currentPlayerId,
         CatalogVersion: "PMHackathonCatalog",
         ItemIds: [itemToGrant]
     };
-    message = ("Granting reward[" + rewardDay + "] = " + itemToGrant + " to player " + currentPlayerId);
-    log.info(message);
-    server.GrantItemsToUser(grantItemsRequest);
-    // TODO: check if this was successful
+    log.info("Granting reward[" + rewardDay + "] = " + itemToGrant + " to player " + currentPlayerId);
 
-    // update player's info if grant was successful
+    var grantItemResult = server.GrantItemsToUser(grantItemsRequest);
+    //server.ConsumeItem(grantItemResult[0].ItemInstanceId);
+   
+    // update player's info and the rewardResult struct if grant was successful
     server.UpdateUserReadOnlyData({
         PlayFabId: currentPlayerId,
         Data: {
@@ -178,23 +190,25 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
             "DailyRewardStreak": JSON.stringify(playerRewardStreak)
         }
     });
-    
+    rewardResult.playerLastRewardDate = currentDateTime;
+
     return {
         messageValue: message,
-        playersRewardInfo: {
-            timeRemaining: timeRemaining,
-            playerRewardStreak: playerRewardStreak,
-            rewardDay: rewardDay,
-            itemToGrant: itemToGrant }
+        playerRewardInfo: {
+            playerRewardStreak: rewardResult.playerRewardStreak,
+            playerLastRewardDate: rewardResult.playerLastRewardDate,
+            playerLastReward: rewardResult.playerLastReward,
+            titleNextRewardDate: rewardResult.titleNextRewardDate
+            }
     };
 }
 interface IDailyRewardsTryClaimReward {
     messageValue: string;
-    playersRewardInfo: {
-        timeRemaining: number;
-        playerRewardStreak: number;
-        rewardDay: number;
-        itemToGrant: string
+    playerRewardInfo: {
+        playerRewardStreak: string;
+        playerLastRewardDate: Date;
+        playerLastReward: string;
+        titleNextRewardDate: Date;
     };
 }
 handlers["DailyRewardsTryClaimReward"] = DailyRewardsTryClaimReward;
