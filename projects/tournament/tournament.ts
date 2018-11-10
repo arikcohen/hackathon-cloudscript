@@ -12,10 +12,13 @@ var GetFishingGameConfig = function (ars: any, context: IPlayFabContext): IFishi
     var tournamentData: IFishingTournamentData = JSON.parse(titleData["FishingTournamentData"]); 
 
     if (isActiveTournament()) {
+        log.info("Tournament game config data returned", tournamentData.gameConfig);
         return tournamentData.gameConfig;
     }
-    else
+    else {
+        log.info("Base game config data returned", baseGameConfig);
         return baseGameConfig;
+    }
 
 }
 
@@ -53,7 +56,7 @@ var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
     //log.debug("Arguments:", { args: args, context: context }); 
 
     // if tournament is going on
-    if (isActiveTournament()) {
+    if (isActiveTournament()) {        
         var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
 
         server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });

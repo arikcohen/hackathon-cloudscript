@@ -247,10 +247,13 @@ var GetFishingGameConfig = function (ars, context) {
     var baseGameConfig = JSON.parse(titleData["FishingGameConfig"]);
     var tournamentData = JSON.parse(titleData["FishingTournamentData"]);
     if (isActiveTournament()) {
+        log.info("Tournament game config data returned", tournamentData.gameConfig);
         return tournamentData.gameConfig;
     }
-    else
+    else {
+        log.info("Base game config data returned", baseGameConfig);
         return baseGameConfig;
+    }
 };
 var isActiveTournament = function () {
     var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data;
