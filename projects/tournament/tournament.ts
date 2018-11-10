@@ -6,11 +6,17 @@
 
 var GetFishingGameConfig = function (ars: any, context: IPlayFabContext): IFishingGameConfig {
     var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data; 
+    
 
     var baseGameConfig: IFishingGameConfig = JSON.parse(titleData["FishingGameConfig"]);
-    //var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"] }); 
+    var tournamentData: IFishingTournamentData = JSON.parse(titleData["FishingTournamentData"]); 
 
-    return baseGameConfig;
+    if (isActiveTournament()) {
+        return tournamentData.gameConfig;
+    }
+    else
+        return baseGameConfig;
+
 }
 
 
@@ -19,11 +25,19 @@ interface IFishingTournamentData {
     endDate: string,
     name: string,
     description: string,
+    isProcessed?: boolean,
     gameConfig: IFishingGameConfig
 }
 
-var isActiveTournament = function () : boolean {
-    return false;
+var isActiveTournament = function (): boolean {
+    var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data; 
+    var tournamentData: IFishingTournamentData = JSON.parse(titleData["FishingTournamentData"]); 
+
+    var curDate = Date.now();
+    var startDate = Date.parse(tournamentData.startDate);
+    var endDate = Date.parse(tournamentData.endDate);
+    
+    return (curDate >= startDate && curDate <= endDate);    
 }
 
 interface IFishingGameConfig {
@@ -35,21 +49,19 @@ interface IFishingGameConfig {
 
 
 var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
-   
-   //log.debug("Arguments:", { args: args, context: context }); 
+
+    //log.debug("Arguments:", { args: args, context: context }); 
 
     // if tournament is going on
-    var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"]}); 
+    if (isActiveTournament()) {
+        var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
 
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });
 
-   
-    var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"]; 
-
-    server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });
-
-    log.debug("Tournament Data", tournamentDataJSON);
-        log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });  
-    
+        log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });
+    }
 }
+    
+
 handlers["GetFishingGameConfig"] = GetFishingGameConfig;
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;

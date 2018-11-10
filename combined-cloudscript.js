@@ -245,20 +245,29 @@ handlers["SpendingEventHelloWorld"] = SpendingEventHelloWorld;
 var GetFishingGameConfig = function (ars, context) {
     var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data;
     var baseGameConfig = JSON.parse(titleData["FishingGameConfig"]);
-    //var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"] }); 
-    return baseGameConfig;
+    var tournamentData = JSON.parse(titleData["FishingTournamentData"]);
+    if (isActiveTournament()) {
+        return tournamentData.gameConfig;
+    }
+    else
+        return baseGameConfig;
 };
 var isActiveTournament = function () {
-    return false;
+    var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data;
+    var tournamentData = JSON.parse(titleData["FishingTournamentData"]);
+    var curDate = Date.now();
+    var startDate = Date.parse(tournamentData.startDate);
+    var endDate = Date.parse(tournamentData.endDate);
+    return (curDate >= startDate && curDate <= endDate);
 };
 var ProcessTournamentFish = function (args, context) {
     //log.debug("Arguments:", { args: args, context: context }); 
     // if tournament is going on
-    var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"] });
-    var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
-    server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });
-    log.debug("Tournament Data", tournamentDataJSON);
-    log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });
+    if (isActiveTournament()) {
+        var countTournamentFishCaught = context.playStreamEvent["StatisticValue"] - context.playStreamEvent["StatisticPreviousValue"];
+        server.UpdatePlayerStatistics({ PlayFabId: currentPlayerId, Statistics: [{ StatisticName: "FishCaughtTournament", Value: countTournamentFishCaught }] });
+        log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });
+    }
 };
 handlers["GetFishingGameConfig"] = GetFishingGameConfig;
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
