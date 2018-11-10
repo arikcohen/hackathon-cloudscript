@@ -67,6 +67,7 @@ var DailyRewardUpdateLastRewardHeartbeat = function (args, context) {
 handlers["DailyRewardUpdateLastRewardHeartbeat"] = DailyRewardUpdateLastRewardHeartbeat;
 // This function checks to see how much longer a player must wait to claim theiir next reward
 var DailyRewardsCheckRewardAvailability = function (args, context) {
+    var timeRemaining = 0;
     var message = "Checking whether " + currentPlayerId + " can claim a reward";
     log.info(message);
     var headers = {};
@@ -89,6 +90,7 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardClaimed = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
+    timeRemaining = nextHeartbeat - currentDateTime.getTime();
     var playerLastRewardClaimedDate = new Date(parseInt(playerLastRewardClaimed));
     // Verify the player is eligible for a new daily reward
     if (playerLastRewardClaimed > titleLastRewardHeartbeat) {
@@ -96,10 +98,11 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
         log.info(message);
     }
     else {
+        timeRemaining = 0;
         message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
         log.info(message);
     }
-    return { messageValue: message };
+    return { messageValue: message, playerStreak: playerRewardStreak.toString(), nextRewardHeartbeat: nextHeartbeatDate, lastClaimedDate: playerLastRewardClaimedDate };
 };
 handlers["DailyRewardsCheckRewardAvailability"] = DailyRewardsCheckRewardAvailability;
 // This function attempts to redeem a the next daily reward for a player
@@ -124,24 +127,28 @@ var DailyRewardsTryClaimReward = function (args, context) {
     var contentType = "application/json";
     // Get the current time - the pre-defined http object makes synchronous HTTP requests
     var currentDateTime = new Date(JSON.parse(http.request(url, httpMethod, content, contentType, headers)).currentDateTime);
+    //log.info("Player " + currentPlayerId + " is checking at time " + currentDateTime.toTimeString());
     // Get the title's last reward heartbeat time
     var titleInternalData = server.GetTitleInternalData({}).Data;
     var titleLastRewardHeartbeat = titleInternalData.DailyRewardLastRewardHeartbeat;
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
-    rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
+    rewardResult.titleNextRewardDate = titleNextRewardDate.toString();
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
+    //var playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
-    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toDateString();
+    //rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardClaimed));
+    rewardResult.playerLastRewardDate = playerLastRewardDate;
     if (playerRewardStreak > 5)
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     // Verify the player is eligible for a new daily reward
     if (playerLastRewardDate > titleLastRewardHeartbeat) {
+        //timeRemaining = (parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS) - currentDateTime.getTime();
         message = "The player " + currentPlayerId + " was NOT YET eligible for a new reward. Wait for the next title reward heartbeat";
         log.info(message);
         return {
@@ -175,13 +182,14 @@ var DailyRewardsTryClaimReward = function (args, context) {
         rewardDay = rewardDay % 3;
         rewardDay = rewardDay + 3;
     }
-    rewardResult.playerLastReward = DAILY_REWARD_CYCLE[rewardDay];
+    var itemToGrant = DAILY_REWARD_CYCLE[rewardDay];
+    //log.info("The Player has earned reward for day " + rewardDay + " with a streak of " + playerRewardStreak);
     var grantItemsRequest = {
         PlayFabId: currentPlayerId,
         CatalogVersion: "PMHackathonCatalog",
-        ItemIds: [rewardResult.playerLastReward]
+        ItemIds: [itemToGrant]
     };
-    log.info("Granting reward[" + rewardDay + "] = " + rewardResult.playerLastReward + " to player " + currentPlayerId);
+    log.info("Granting reward[" + rewardDay + "] = " + itemToGrant + " to player " + currentPlayerId);
     var grantItemResult = server.GrantItemsToUser(grantItemsRequest);
     //server.ConsumeItem(grantItemResult[0].ItemInstanceId);
     // update player's info and the rewardResult struct if grant was successful
@@ -192,11 +200,13 @@ var DailyRewardsTryClaimReward = function (args, context) {
             "DailyRewardStreak": JSON.stringify(playerRewardStreak)
         }
     });
+    rewardResult.playerLastRewardDate = currentDateTime.toString();
+    log.info("Just assigned currentDateTime to playerLastRewardDate " + currentDateTime + "     :     " + rewardResult.playerLastRewardDate);
     return {
         messageValue: message,
         playerRewardInfo: {
             playerRewardStreak: rewardResult.playerRewardStreak,
-            playerLastRewardDate: currentDateTime.toDateString(),
+            playerLastRewardDate: rewardResult.playerLastRewardDate,
             playerLastReward: rewardResult.playerLastReward,
             titleNextRewardDate: rewardResult.titleNextRewardDate
         }
@@ -250,6 +260,7 @@ var ProcessTournamentFish = function (args, context) {
     log.debug("Tournament Data", tournamentDataJSON);
     log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });
 };
+handlers["GetFishingGameConfig"] = GetFishingGameConfig;
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //

@@ -51,4 +51,5 @@ var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
         log.debug("Fish To Count", { FishCaught: countTournamentFishCaught });  
     
 }
+handlers["GetFishingGameConfig"] = GetFishingGameConfig;
 handlers["ProcessTournamentFish"] = ProcessTournamentFish;
