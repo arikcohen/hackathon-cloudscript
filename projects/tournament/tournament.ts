@@ -4,6 +4,35 @@
 // (https://api.playfab.com/Documentation/Client/method/ExecuteCloudScript)
 // "context" contains additional information when the Cloud Script function is called from a PlayStream action.
 
+var GetFishingGameConfig = function (ars: any, context: IPlayFabContext): IFishingGameConfig {
+    var titleData = server.GetTitleData({ Keys: ["FishingTournamentData", "FishingGameConfig"] }).Data; 
+
+    var baseGameConfig: IFishingGameConfig = JSON.parse(titleData["FishingGameConfig"]);
+    //var tournamentDataJSON = server.GetTitleData({ Keys: ["FishingTournamentData"] }); 
+
+    return baseGameConfig;
+}
+
+
+interface IFishingTournamentData {
+    startDate: string,
+    endDate: string,
+    name: string,
+    description: string,
+    gameConfig: IFishingGameConfig
+}
+
+var isActiveTournament = function () : boolean {
+    return false;
+}
+
+interface IFishingGameConfig {
+    minFish: number,
+    maxFish: number,
+    minRods: number,
+    maxRods: number
+}
+
 
 var ProcessTournamentFish = function (args: any, context: IPlayFabContext) {
    
