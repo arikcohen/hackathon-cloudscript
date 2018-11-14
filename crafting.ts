@@ -7,9 +7,10 @@
     var item_To_Craft = "Crafted_Wand";
 
     //Currency costs to crafted item
-    var currencyPrices = "Empty String";
-    var craftCostinGold = 1;
-    var craftCostinWood = 1;
+    var virtualCurrencyGold = "GD";
+    var virtualCurrencyWood = "WD";
+    var craftCostinGold = 0;
+    var craftCostinWood = 0;
 
     //Grabbing Catalog
     var getCatalogItemsResponse = server.GetCatalogItems({ CatalogVersion: null });
@@ -29,8 +30,13 @@
                 //assign crafting item to catalog item
                 catalogItemInstance = catalogItems[i];
                 found_Crafting_Item = true;
-                currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+                var currencyPrices = catalogItems[i].VirtualCurrencyPrices;
                 log.info("Item Currency Prices are: " + currencyPrices);
+
+                if (catalogItems[i].VirtualCurrencyPrices.hasOwnProperty(virtualCurrencyGold))
+                    craftCostinGold = catalogItems[i].VirtualCurrencyPrices[virtualCurrencyGold];
+                if (catalogItems[i].VirtualCurrencyPrices.hasOwnProperty(virtualCurrencyWood))
+                    craftCostinWood = catalogItems[i].VirtualCurrencyPrices[virtualCurrencyWood];
             }
         }
     }
@@ -42,9 +48,15 @@
     //Player Data 
     var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
 
-    //subtract currencies
-    server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GD", Amount: craftCostinGold });
-    server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WD", Amount: craftCostinWood });
+    //subtract currencies from the layer for crafting
+    if (craftCostinGold != 0)
+    {
+        server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GD", Amount: craftCostinGold });
+    }
+    if (craftCostinWood != 0)
+    {
+        server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WD", Amount: craftCostinWood });
+    }
 
     //Add Craft item to inventory
     var itemGrantResult = server.GrantItemsToUser(
