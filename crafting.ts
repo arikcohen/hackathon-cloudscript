@@ -8,8 +8,8 @@
 
     //Currency costs to crafted item
     var currencyPrices = "Empty String";
-    var craftCostinGold = 0;
-    var craftCostinWood = 0;
+    var craftCostinGold = 1;
+    var craftCostinWood = 1;
 
     //Grabbing Catalog
     var getCatalogItemsResponse = server.GetCatalogItems({ CatalogVersion: null });
@@ -18,7 +18,8 @@
     var catalogItemInstance;
     var found_Crafting_Item = false;
 
-    for (var i = 0; i <= length -1; i++) {
+    for (var i = 0; i <= length - 1; i++)//-1 one here is just silly
+    {
         if (catalogItems[i].ItemId != "undefined\n")
         {
             var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
@@ -28,7 +29,8 @@
                 //assign crafting item to catalog item
                 catalogItemInstance = catalogItems[i];
                 found_Crafting_Item = true;
-                //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+                currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+                log.info("Item Currency Prices are: " + currencyPrices);
             }
         }
     }

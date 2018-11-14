@@ -6,8 +6,8 @@ handlers.craftItem = function (args, context) {
     var item_To_Craft = "Crafted_Wand";
     //Currency costs to crafted item
     var currencyPrices = "Empty String";
-    var craftCostinGold = 0;
-    var craftCostinWood = 0;
+    var craftCostinGold = 1;
+    var craftCostinWood = 1;
     //Grabbing Catalog
     var getCatalogItemsResponse = server.GetCatalogItems({ CatalogVersion: null });
     var catalogItems = getCatalogItemsResponse.Catalog;
@@ -22,7 +22,8 @@ handlers.craftItem = function (args, context) {
                 //assign crafting item to catalog item
                 catalogItemInstance = catalogItems[i];
                 found_Crafting_Item = true;
-                //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+                currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+                log.info("Item Currency Prices are: " + currencyPrices);
             }
         }
     }
