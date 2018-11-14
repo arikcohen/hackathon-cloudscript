@@ -26,7 +26,7 @@
             //assign crafting item to catalog item
             catalogItemInstance = catalogItems[i];
             found_Crafting_Item = true;
-            currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+            //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
         }
     }
     if (found_Crafting_Item == false) {
