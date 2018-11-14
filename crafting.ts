@@ -18,7 +18,7 @@
     var catalogItemInstance;
     var found_Crafting_Item = false;
 
-    for (var i = 0; i <= length; i++) {
+    for (var i = 0; i <= length -1; i++) {
         if (catalogItems[i].ItemId != "undefined\n")
         {
             var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
