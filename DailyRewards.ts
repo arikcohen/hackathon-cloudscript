@@ -65,7 +65,7 @@ var DailyRewardsCheckRewardAvailability = function (args: any, context: IPlayFab
         log.info(message);
     }
     else {
-        message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
+        message = "The player " + currentPlayerId + " IS ELIGIBLE for a new reward.";
         log.info(message);
     }
     return { messageValue: message }
@@ -107,6 +107,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
     rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
+    log.info("old heartbeat is " + titleLastRewardHeartbeat + " \nrewardCycleLengthInMS is " + rewardCycleLengthInMS + " \nnew heartbeat is" + rewardResult.titleNextRewardDate);
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
