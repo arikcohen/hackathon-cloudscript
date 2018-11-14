@@ -135,9 +135,9 @@ var DailyRewardsTryClaimReward = function (args, context) {
     var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
-    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toDateString();
+    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toLocaleString();
     if (playerRewardStreak > 5)
-        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
+        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 6) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     // Verify the player is eligible for a new daily reward
@@ -200,7 +200,7 @@ var DailyRewardsTryClaimReward = function (args, context) {
         messageValue: message,
         playerRewardInfo: {
             playerRewardStreak: rewardResult.playerRewardStreak,
-            playerLastRewardDate: currentDateTime.toDateString(),
+            playerLastRewardDate: currentDateTime.toLocaleString(),
             playerLastReward: rewardResult.playerLastReward,
             titleNextRewardDate: rewardResult.titleNextRewardDate
         }
