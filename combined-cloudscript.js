@@ -28,7 +28,7 @@ handlers.craftItem = function (args, context) {
     log.info(message);
     //Inventory item to Craft
     //todo: Hardcoded for now - want to input this
-    var reward_ID = "Crafted_Wand";
+    var item_To_Craft = "Crafted_Wand";
     //Currency costs to crafted item
     var craftCostinGold = 0;
     var craftCostinWood = 0;
@@ -38,12 +38,12 @@ handlers.craftItem = function (args, context) {
     var length = catalogItems.length;
     var catalogItemInstance;
     for (var i = 0; i <= length; i++) {
-        if ((catalogItems[i].ItemId) == reward_ID) {
+        if ((catalogItems[i].ItemId.toString()) == item_To_Craft) {
             //assign crafting item to catalog item
             catalogItemInstance = catalogItems[i];
         }
         else {
-            var result = "Cannot locate " + reward_ID + "in the catalog";
+            var result = "Cannot locate " + item_To_Craft + " in the catalog";
             return { rewards: result };
         }
     }
@@ -56,7 +56,7 @@ handlers.craftItem = function (args, context) {
     var itemGrantResult = server.GrantItemsToUser({
         PlayFabId: currentPlayerId,
         Annotation: "Given for crafting",
-        ItemIds: [reward_ID]
+        ItemIds: [item_To_Craft]
     });
     var resultItems = itemGrantResult.ItemGrantResults;
     return { rewards: resultItems };

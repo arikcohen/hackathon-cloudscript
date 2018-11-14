@@ -4,7 +4,7 @@
 
     //Inventory item to Craft
     //todo: Hardcoded for now - want to input this
-    var reward_ID = "Crafted_Wand";
+    var item_To_Craft = "Crafted_Wand";
 
     //Currency costs to crafted item
     var craftCostinGold = 0;
@@ -17,13 +17,13 @@
     var catalogItemInstance;
 
     for (var i = 0; i <= length; i++) {
-        if ((catalogItems[i].ItemId) == reward_ID)//itemId being the item id of the item we are granting (these are all unique in the catalog). Note: I tried JSON.parse(catalogItems[i]) and got errors.
+        if ((catalogItems[i].ItemId.toString()) == item_To_Craft)//itemId being the item id of the item we are granting (these are all unique in the catalog). Note: I tried JSON.parse(catalogItems[i]) and got errors.
         {
             //assign crafting item to catalog item
             catalogItemInstance = catalogItems[i];
         }
         else {
-            var result = "Cannot locate " + reward_ID + "in the catalog";
+            var result = "Cannot locate " + item_To_Craft + " in the catalog";
             return { rewards: result };
         }
     }
@@ -40,7 +40,7 @@
         {
             PlayFabId: currentPlayerId,
             Annotation: "Given for crafting",
-            ItemIds: [reward_ID]
+            ItemIds: [item_To_Craft]
         });
 
     var resultItems = itemGrantResult.ItemGrantResults;
