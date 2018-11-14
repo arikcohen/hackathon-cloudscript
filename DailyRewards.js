@@ -51,7 +51,7 @@ var DailyRewardsCheckRewardAvailability = function (args, context) {
         log.info(message);
     }
     else {
-        message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
+        message = "The player " + currentPlayerId + " IS ELIGIBLE for a new reward.";
         log.info(message);
     }
     return { messageValue: message };
@@ -85,14 +85,16 @@ var DailyRewardsTryClaimReward = function (args, context) {
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
     rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
+    message = "old heartbeat is " + titleLastRewardHeartbeat + " \nrewardCycleLengthInMS is " + rewardCycleLengthInMS + " \nnew heartbeat is" + rewardResult.titleNextRewardDate;
+    log.info(message);
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
     var playerLastRewardDate = userData.Data["DailyRewardClaimed"].Value;
     var playerRewardStreak = parseInt(userData.Data["DailyRewardStreak"].Value);
     rewardResult.playerRewardStreak = playerRewardStreak.toString();
-    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toDateString();
+    rewardResult.playerLastRewardDate = new Date(parseInt(playerLastRewardDate)).toLocaleString();
     if (playerRewardStreak > 5)
-        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 5) % 3) + 3];
+        rewardResult.playerLastReward = DAILY_REWARD_CYCLE[((playerRewardStreak - 6) % 3) + 3];
     else
         rewardResult.playerLastReward = DAILY_REWARD_CYCLE[playerRewardStreak];
     // Verify the player is eligible for a new daily reward
@@ -155,7 +157,7 @@ var DailyRewardsTryClaimReward = function (args, context) {
         messageValue: message,
         playerRewardInfo: {
             playerRewardStreak: rewardResult.playerRewardStreak,
-            playerLastRewardDate: currentDateTime.toDateString(),
+            playerLastRewardDate: currentDateTime.toLocaleString(),
             playerLastReward: rewardResult.playerLastReward,
             titleNextRewardDate: rewardResult.titleNextRewardDate
         }
