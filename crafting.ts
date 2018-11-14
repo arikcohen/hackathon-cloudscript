@@ -44,6 +44,11 @@
     };
     var GetUserInventoryResult = server.GetUserInventory(GetUserInventoryRequest);
     var userCurrencyBalances = GetUserInventoryResult.VirtualCurrency;
+    //Debugging
+    var debugGBalance = GetUserInventoryResult.VirtualCurrency[virtualCurrencyGold].valueOf;
+    var debugWBalance = GetUserInventoryResult.VirtualCurrency[virtualCurrencyWood].valueOf;
+    log.info("gold is :" + debugWBalance + " Wood is :" + debugWBalance);
+    //Debugging
     if (userCurrencyBalances != null && userCurrencyBalances.hasOwnProperty[virtualCurrencyGold] > craftCostinGold && userCurrencyBalances[virtualCurrencyWood] > craftCostinWood) {
         //subtract currencies from the layer for crafting
         if (craftCostinGold != 0) {
