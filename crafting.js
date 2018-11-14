@@ -15,6 +15,7 @@ handlers.craftItem = function (args, context) {
     var length = catalogItems.length;
     var catalogItemInstance;
     var found_Crafting_Item = false;
+    //Find our craft item
     for (var i = 0; i <= length - 1; i++) {
         if (catalogItems[i].ItemId != "undefined\n") {
             var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
@@ -37,7 +38,13 @@ handlers.craftItem = function (args, context) {
         return { rewards: result };
     }
     //Player Data 
-    var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    //var inventory = server.GetUserInventory({ PlayFabId: currentPlayerId });
+    var GetUserInventoryRequest = {
+        "PlayFabId": currentPlayerId
+    };
+    var GetUserInventoryResult = server.GetUserInventory(GetUserInventoryRequest);
+    var userCurrencyBalances = GetUserInventoryResult.VirtualCurrency;
+    log.info(userCurrencyBalances.toString());
     //subtract currencies from the layer for crafting
     if (craftCostinGold != 0) {
         server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GD", Amount: craftCostinGold });
