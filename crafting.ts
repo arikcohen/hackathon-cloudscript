@@ -19,14 +19,17 @@
     var found_Crafting_Item = false;
 
     for (var i = 0; i <= length; i++) {
-        var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
-        log.info(catalogDebugLine);
-        if ((catalogItems[i].ItemId.toString()) == item_To_Craft)//itemId being the item id of the item we are granting (these are all unique in the catalog). Note: I tried JSON.parse(catalogItems[i]) and got errors.
+        if (catalogItems[i].ItemId != "undefined\n")
         {
-            //assign crafting item to catalog item
-            catalogItemInstance = catalogItems[i];
-            found_Crafting_Item = true;
-            //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+            var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
+            log.info(catalogDebugLine);
+            if ((catalogItems[i].ItemId.toString()) == item_To_Craft)//itemId being the item id of the item we are granting (these are all unique in the catalog). Note: I tried JSON.parse(catalogItems[i]) and got errors.
+            {
+                //assign crafting item to catalog item
+                catalogItemInstance = catalogItems[i];
+                found_Crafting_Item = true;
+                //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+            }
         }
     }
     if (found_Crafting_Item == false) {

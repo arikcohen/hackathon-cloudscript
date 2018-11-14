@@ -15,13 +15,15 @@ handlers.craftItem = function (args, context) {
     var catalogItemInstance;
     var found_Crafting_Item = false;
     for (var i = 0; i <= length; i++) {
-        var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
-        log.info(catalogDebugLine);
-        if ((catalogItems[i].ItemId.toString()) == item_To_Craft) {
-            //assign crafting item to catalog item
-            catalogItemInstance = catalogItems[i];
-            found_Crafting_Item = true;
-            //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+        if (catalogItems[i].ItemId != "undefined\n") {
+            var catalogDebugLine = "catalog item " + i + " is " + catalogItems[i].ItemId.toString();
+            log.info(catalogDebugLine);
+            if ((catalogItems[i].ItemId.toString()) == item_To_Craft) {
+                //assign crafting item to catalog item
+                catalogItemInstance = catalogItems[i];
+                found_Crafting_Item = true;
+                //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+            }
         }
     }
     if (found_Crafting_Item == false) {
