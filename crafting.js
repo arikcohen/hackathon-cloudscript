@@ -21,7 +21,7 @@ handlers.craftItem = function (args, context) {
             //assign crafting item to catalog item
             catalogItemInstance = catalogItems[i];
             found_Crafting_Item = true;
-            currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
+            //currencyPrices = catalogItems[i].VirtualCurrencyPrices.toString();
         }
     }
     if (found_Crafting_Item == false) {
@@ -36,7 +36,7 @@ handlers.craftItem = function (args, context) {
     //Add Craft item to inventory
     var itemGrantResult = server.GrantItemsToUser({
         PlayFabId: currentPlayerId,
-        Annotation: "Given for crafting",
+        CatalogVersion: "PMHackathonCatalog",
         ItemIds: [item_To_Craft]
     });
     var resultItems = itemGrantResult.ItemGrantResults;
