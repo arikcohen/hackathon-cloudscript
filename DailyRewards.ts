@@ -107,7 +107,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
     rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
-    message = "old heartbeat is " + titleLastRewardHeartbeat + " \nrewardCycleLengthInMS is " + rewardCycleLengthInMS + " \nnew heartbeat is" + rewardResult.titleNextRewardDate;
+    message = "New heartbeat is " + rewardResult.titleNextRewardDate + " = " + titleLastRewardHeartbeat + " + " + rewardCycleLengthInMS;
     log.info(message);
 
     // Get the player's last reward claim time
@@ -138,7 +138,7 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     }
     else
     {
-        message = "The player " + currentPlayerId + "IS ELIGIBLE for a new reward.";
+        message = "The player " + currentPlayerId + " IS ELIGIBLE for a new reward.";
         log.info(message);
     }
 
