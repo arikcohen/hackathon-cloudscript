@@ -45,7 +45,7 @@
     var itemGrantResult = server.GrantItemsToUser(
         {
             PlayFabId: currentPlayerId,
-            Annotation: "Given for crafting",
+            CatalogVersion: "PMHackathonCatalog",
             ItemIds: [item_To_Craft]
         });
 
