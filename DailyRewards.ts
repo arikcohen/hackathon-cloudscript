@@ -107,7 +107,8 @@ var DailyRewardsTryClaimReward = function (args: any, context: IPlayFabContext):
     var rewardCycleLengthInMS = parseInt(titleInternalData.DailyRewardDelayTimeInMinutes) * 60 * 1000;
     var titleNextRewardDate = new Date(parseInt(titleLastRewardHeartbeat) + rewardCycleLengthInMS);
     rewardResult.titleNextRewardDate = titleNextRewardDate.toLocaleString();
-    log.info("old heartbeat is " + titleLastRewardHeartbeat + " \nrewardCycleLengthInMS is " + rewardCycleLengthInMS + " \nnew heartbeat is" + rewardResult.titleNextRewardDate);
+    message = "old heartbeat is " + titleLastRewardHeartbeat + " \nrewardCycleLengthInMS is " + rewardCycleLengthInMS + " \nnew heartbeat is" + rewardResult.titleNextRewardDate;
+    log.info(message);
 
     // Get the player's last reward claim time
     var userData = server.GetUserReadOnlyData({ PlayFabId: currentPlayerId, Keys: ["DailyRewardClaimed", "DailyRewardStreak"] });
