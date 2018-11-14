@@ -44,20 +44,24 @@
     };
     var GetUserInventoryResult = server.GetUserInventory(GetUserInventoryRequest);
     var userCurrencyBalances = GetUserInventoryResult.VirtualCurrency;
-    log.info(userCurrencyBalances.toString());
-    //subtract currencies from the layer for crafting
-    if (craftCostinGold != 0) {
-        server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "GD", Amount: craftCostinGold });
+    if (userCurrencyBalances != null && userCurrencyBalances.hasOwnProperty[virtualCurrencyGold] > craftCostinGold && userCurrencyBalances[virtualCurrencyWood] > craftCostinWood) {
+        //subtract currencies from the layer for crafting
+        if (craftCostinGold != 0) {
+            server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: virtualCurrencyGold, Amount: craftCostinGold });
+        }
+        if (craftCostinWood != 0) {
+            server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WD", Amount: craftCostinWood });
+        }
+        //Add Craft item to inventory
+        var itemGrantResult = server.GrantItemsToUser({
+            PlayFabId: currentPlayerId,
+            CatalogVersion: "PMHackathonCatalog",
+            ItemIds: [item_To_Craft]
+        });
+        var resultItems = itemGrantResult.ItemGrantResults;
+        return { rewards: resultItems };
+    } else {
+        var message = currentPlayerId + " does not enough currency to craft";
+        return { rewards: message };
     }
-    if (craftCostinWood != 0) {
-        server.SubtractUserVirtualCurrency({ PlayFabId: currentPlayerId, VirtualCurrency: "WD", Amount: craftCostinWood });
-    }
-    //Add Craft item to inventory
-    var itemGrantResult = server.GrantItemsToUser({
-        PlayFabId: currentPlayerId,
-        CatalogVersion: "PMHackathonCatalog",
-        ItemIds: [item_To_Craft]
-    });
-    var resultItems = itemGrantResult.ItemGrantResults;
-    return { rewards: resultItems };
 };
